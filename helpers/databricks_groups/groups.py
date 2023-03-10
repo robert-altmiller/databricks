@@ -8,7 +8,7 @@ import requests, os
 # databricks instance address
 databricks_instance = "adb-1138300894056801.1.azuredatabricks.net"
 # databricks personal access token
-databricks_pat = "dapi*******"
+databricks_pat = "dapi**********""
 
 # COMMAND ----------
 
@@ -103,18 +103,33 @@ print(response.text)
 
 # DBTITLE 1,Databricks Rest API 2.0 - Add User to a Group
 # this jsondata below adds a user to a group
-jsondata = {'user_name': 'robert.altmiller@databricks.com', 'parent_name': 'dbricks-readers'}
-response = execute_rest_api_call(post_request, add_group_member_config, databricks_pat, jsondata)
-print(response)
+jsondatalist = [
+    {'user_name': 'robert.altmiller@databricks.com', 'parent_name': 'dbricks-readers'},
+    {'user_name': 'robert.altmiller@databricks.com', 'parent_name': 'dbricks-contributors'},
+    {'user_name': 'robert.altmiller@databricks.com', 'parent_name': 'users'},
+    {'user_name': 'robert.altmiller@databricks.com', 'parent_name': 'admin'}
+]
+
+# add all the members to groups
+for jsondata in jsondatalist:
+    response = execute_rest_api_call(post_request, add_group_member_config, databricks_pat, jsondata)
+    print(f"{jsondata}: {response}")
 
 # COMMAND ----------
 
 # DBTITLE 1,Databricks Rest API 2.0 - Add Group to a Group
 # this jsondata below adds a group to a group
 # in this case 'dbricks_contributors' gets added to 'dbricks-readers'
-jsondata = {'group_name': 'dbricks-contributors', 'parent_name': 'dbricks-readers'}
-response = execute_rest_api_call(post_request, add_group_member_config, databricks_pat, jsondata)
-print(response)
+jsonlist = [
+    {'group_name': 'dbricks_contributors', 'parent_name': 'dbricks-readers'},
+    {'group_name': 'admin', 'parent_name': 'dbricks-readers'},
+    {'group_name': 'users', 'parent_name': 'dbricks-readers'}
+]
+
+# add the groups to groups
+for jsondata in jsondatalist:
+    response = execute_rest_api_call(post_request, add_group_member_config, databricks_pat, jsondata)
+    print(f"{jsondata}: {response}")
 
 # COMMAND ----------
 
@@ -122,7 +137,3 @@ print(response)
 jsondata = {'user_name': 'robert.altmiller@databricks.com'}
 response = execute_rest_api_call(get_request, list_user_groups_config, databricks_pat, jsondata)
 print(response.text)
-
-# COMMAND ----------
-
-
