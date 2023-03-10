@@ -8,7 +8,7 @@ import requests, os
 # databricks instance address
 databricks_instance = "adb-1138300894056801.1.azuredatabricks.net"
 # databricks personal access token
-databricks_pat = 
+databricks_pat = "dapi*******"
 
 # COMMAND ----------
 
@@ -60,16 +60,20 @@ def get_api_config(dbricks_instance = None, api_topic = None, api_call_type = No
 
 # DBTITLE 1,Get Databricks Rest 2.0 API Action Configurations - Groups
 # groups - add member configuration
-add_member_config = get_api_config(databricks_instance, "groups", "add-member")
-print(f"add_member_config: {add_member_config}\n")
+add_group_member_config = get_api_config(databricks_instance, "groups", "add-member")
+print(f"add_group_member_config: {add_group_member_config}\n")
 
 # groups - list member configuration
-list_member_config = get_api_config(databricks_instance, "groups", "list-members")
-print(f"list_member_config: {list_member_config}\n")
+list_group_member_config = get_api_config(databricks_instance, "groups", "list-members")
+print(f"list_group_member_config: {list_group_member_config}\n")
 
 # groups - list all groups configuration
-list_all_config = get_api_config(databricks_instance, "groups", "list")
-print(f"list_all_config: {list_all_config}\n")
+list_all_groups_config = get_api_config(databricks_instance, "groups", "list")
+print(f"list_all_groups_config: {list_all_groups_config}\n")
+
+# groups - list all groups a user is in configuration
+list_user_groups_config = get_api_config(databricks_instance, "groups", "list-parents")
+print(f"list_user_groups_config: {list_user_groups_config}\n")
 
 # COMMAND ----------
 
@@ -85,14 +89,14 @@ def execute_rest_api_call(function_call_type, config = None, token = None, jsond
 
 # DBTITLE 1,Databricks Rest API 2.0 - List All Groups in Entire Organization
 jsondata = {}
-response = execute_rest_api_call(get_request, list_all_config, databricks_pat, jsondata)
+response = execute_rest_api_call(get_request, list_all_groups_config, databricks_pat, jsondata)
 print(response.text)
 
 # COMMAND ----------
 
 # DBTITLE 1,Databricks Rest API 2.0 - List Group Members
 jsondata = {'group_name': 'dbricks-contributors'}
-response = execute_rest_api_call(get_request, list_member_config, databricks_pat, jsondata)
+response = execute_rest_api_call(get_request, list_group_member_config, databricks_pat, jsondata)
 print(response.text)
 
 # COMMAND ----------
@@ -100,7 +104,7 @@ print(response.text)
 # DBTITLE 1,Databricks Rest API 2.0 - Add User to a Group
 # this jsondata below adds a user to a group
 jsondata = {'user_name': 'robert.altmiller@databricks.com', 'parent_name': 'dbricks-readers'}
-response = execute_rest_api_call(post_request, add_member_config, databricks_pat, jsondata)
+response = execute_rest_api_call(post_request, add_group_member_config, databricks_pat, jsondata)
 print(response)
 
 # COMMAND ----------
@@ -108,6 +112,17 @@ print(response)
 # DBTITLE 1,Databricks Rest API 2.0 - Add Group to a Group
 # this jsondata below adds a group to a group
 # in this case 'dbricks_contributors' gets added to 'dbricks-readers'
-jsondata = {'group': 'dbricks-contributors', 'parent_name': 'dbricks-readers'}
-response = execute_rest_api_call(post_request, add_member_config, databricks_pat, jsondata)
+jsondata = {'group_name': 'dbricks-contributors', 'parent_name': 'dbricks-readers'}
+response = execute_rest_api_call(post_request, add_group_member_config, databricks_pat, jsondata)
 print(response)
+
+# COMMAND ----------
+
+# DBTITLE 1,Databricks Rest API 2.0 - List All the Groups a User is in
+jsondata = {'user_name': 'robert.altmiller@databricks.com'}
+response = execute_rest_api_call(get_request, list_user_groups_config, databricks_pat, jsondata)
+print(response.text)
+
+# COMMAND ----------
+
+
